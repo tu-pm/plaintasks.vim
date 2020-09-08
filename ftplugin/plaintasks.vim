@@ -10,7 +10,6 @@ endif
 
 nnoremap <silent> <buffer> + :call NewTask()<cr>A
 vnoremap <silent> <buffer> + :call NewTask()<cr>
-nnoremap <silent> <buffer> <cr> :call NewTaskBelow()<cr>a<space>
 noremap <silent> <buffer> = :call ToggleComplete()<cr>
 noremap <silent> <buffer> <C-M> :call ToggleCancel()<cr>
 nnoremap <silent> <buffer> - :call ArchiveTasks()<cr>
@@ -47,15 +46,13 @@ endfunc
 
 function! NewTask()
   let line=getline('.')
-  if line =~ "^ *$"
-    normal A☐
+  if line =~ '^$'
+    execute "normal I ☐ "
+  elseif line =~ '^\s\+☐.*$'
+    execute "normal o☐ "
   else
-    normal I☐
+    execute "normal I☐ "
   end
-endfunc
-
-function! NewTaskBelow()
-  normal o☐
 endfunc
 
 function! ArchiveTasks()
