@@ -9,7 +9,7 @@ if exists("b:did_ftplugin")
 endif
 
 nnoremap <silent> <buffer> + :call NewTask()<cr>A
-vnoremap <silent> <buffer> + :call NewTask()<cr>
+inoremap <silent> <buffer> <cr> :call NewTaskInsert()<cr>A
 noremap <silent> <buffer> = :call ToggleComplete()<cr>
 noremap <silent> <buffer> <C-M> :call ToggleCancel()<cr>
 nnoremap <silent> <buffer> - :call ArchiveTasks()<cr>
@@ -46,9 +46,7 @@ endfunc
 
 function! NewTask()
   let line=getline('.')
-  if line =~ '^$'
-    execute "normal I ☐ "
-  elseif line =~ '^\s\+☐.*$'
+  if line =~ '^\s\+[☐,✔,✘].*$'
     execute "normal o☐ "
   else
     execute "normal I☐ "
