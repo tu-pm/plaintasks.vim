@@ -9,7 +9,7 @@ if exists("b:did_ftplugin")
 endif
 
 nnoremap <silent> <buffer> + :call NewTask()<cr>A
-inoremap <silent> <buffer> <cr> :call NewTaskInsert()<cr>A
+inoremap <silent> <buffer> <cr> <esc>:call NewLine()<cr>A
 noremap <silent> <buffer> = :call ToggleComplete()<cr>
 noremap <silent> <buffer> <C-M> :call ToggleCancel()<cr>
 nnoremap <silent> <buffer> - :call ArchiveTasks()<cr>
@@ -46,54 +46,64 @@ endfunc
 
 function! NewTask()
   let line=getline('.')
-  if line =~ '^\s\+[☐,✔,✘].*$'
+  if line =~ '^\s*[☐,✔,✘].*$'
     execute "normal o☐ "
   else
     execute "normal I☐ "
   end
 endfunc
 
+function! NewLine()
+  let line=getline('.')
+  if line =~ '^\s*[☐,✔,✘].*$'
+    execute "normal o☐ "
+  else
+    execute "normal o"
+  end
+endfunc
+
+
 function! ArchiveTasks()
-    let orig_line=line('.')
-    let orig_col=col('.')
-    let archive_start = search("^Archive:")
-    if (archive_start == 0)
-        call cursor(line('$'), 1)
-        normal 2o
-        normal iArchive:
-        normal o＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
-        let archive_start = line('$') - 1
-    endif
+  let orig_line=line('.')
+  let orig_col=col('.')
+  let archive_start = search("^Archive:")
+  if (archive_start == 0)
+    call cursor(line('$'), 1)
+    normal 2o
+    normal iArchive:
+    normal o＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+    let archive_start = line('$') - 1
+  endif
+  call cursor(1,1)
+
+  let found=0
+  let a_reg = @a
+  if search("✔", "", archive_start) != 0
     call cursor(1,1)
+    while search("✔", "", archive_start) > 0
+      if (found == 0)
+        normal "add
+      else
+        normal "Add
+      endif
+      let found = found + 1
+      call cursor(1,1)
+    endwhile
 
-    let found=0
-    let a_reg = @a
-    if search("✔", "", archive_start) != 0
-        call cursor(1,1)
-        while search("✔", "", archive_start) > 0
-            if (found == 0)
-                normal "add
-            else
-                normal "Add
-            endif
-            let found = found + 1
-            call cursor(1,1)
-        endwhile
+    call cursor(archive_start + 1,1)
+    normal "ap
+  endif
 
-        call cursor(archive_start + 1,1)
-        normal "ap
-    endif
-
-    "clean up
-    let @a = a_reg
-    call cursor(orig_line, orig_col)
+  "clean up
+  let @a = a_reg
+  call cursor(orig_line, orig_col)
 endfunc
 
 function! Separator()
-    let line = getline('.')
-    if line =~ "^-*$"
-      return "--- ✄ -----------------------"
-    else
-      return "--"
-    end
+  let line = getline('.')
+  if line =~ "^-*$"
+    return "--- ✄ -----------------------"
+  else
+    return "--"
+  end
 endfunc
